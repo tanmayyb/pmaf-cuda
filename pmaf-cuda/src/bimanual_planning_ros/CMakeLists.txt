@@ -3,8 +3,20 @@ project(bimanual_planning_ros)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+# CUDA stuff
+set(CMAKE_C_COMPILER "/usr/lib/nvidia-cuda-toolkit/bin/gcc" CACHE PATH "" FORCE)
+set(CMAKE_CXX_COMPILER "/usr/lib/nvidia-cuda-toolkit/bin/g++" CACHE PATH "" FORCE)
+
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+
+# CUDA stuff
+set(CUDA_DIR "/usr/lib/nvidia-cuda-toolkit")
+find_package(CUDA REQUIRED)
+SET(CUDA_NVCC_FLAGS "-arch=sm_75" CACHE STRING "nvcc flags" FORCE)
+SET (CUDA_VERBOSE_BUILD ON CACHE BOOL "nvcc verbose" FORCE)
+SET(LIB_TYPE STATIC) 
 
 find_package(catkin REQUIRED COMPONENTS
   actionlib
@@ -138,6 +150,16 @@ target_include_directories(dual_panda_costp_controller SYSTEM PUBLIC
 target_include_directories(dual_panda_costp_controller PUBLIC
   include
 )
+
+# # CUDA stuff
+# cuda_add_library(TestLib ${LIB_TYPE} src/vectoradd.cu)
+# ADD_EXECUTABLE(roscuda_vectoradd src/main.cpp)
+# ADD_DEPENDENCIES(roscuda_vectoradd TestLib)
+# TARGET_LINK_LIBRARIES(roscuda_vectoradd
+#    ${catkin_LIBRARIES}
+#    ${PCL_LIBRARIES}
+#    TestLib
+# )
 
 add_executable(panda_bimanual_control_node
   src/main.cpp
