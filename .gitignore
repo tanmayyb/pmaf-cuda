@@ -1,4 +1,10 @@
+
+# catkin
 **build
 **log
 **devel
 **.catkin_tools
+
+# build garbage
+**.stderr
+**moveit_resources
