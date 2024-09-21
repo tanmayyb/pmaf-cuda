@@ -17,6 +17,9 @@ find_package(CUDA REQUIRED)
 SET(CUDA_NVCC_FLAGS "-arch=sm_75" CACHE STRING "nvcc flags" FORCE)
 SET (CUDA_VERBOSE_BUILD ON CACHE BOOL "nvcc verbose" FORCE)
 SET(LIB_TYPE STATIC) 
+enable_language(CUDA)
+# to supress warnings
+add_definitions(-w -DUSE_CUDA)
 
 find_package(catkin REQUIRED COMPONENTS
   actionlib
@@ -68,7 +71,7 @@ generate_messages(DEPENDENCIES std_msgs moveit_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES utilities dual_panda_costp_controller
+  LIBRARIES utilities dual_panda_costp_controller cuda_lib
   CATKIN_DEPENDS
     actionlib
     controller_interface
@@ -95,7 +98,9 @@ catkin_package(
     Franka
 )
 
-include_directories(
+include_directories(PUBLIC
+  # ${catkin_INCLUDE_DIRS}
+  # ${CUDA_INCLUDE_DIRS} 
   include
 )
 
@@ -151,17 +156,28 @@ target_include_directories(dual_panda_costp_controller PUBLIC
   include
 )
 
-# # CUDA stuff
-# cuda_add_library(TestLib ${LIB_TYPE} src/vectoradd.cu)
-# ADD_EXECUTABLE(roscuda_vectoradd src/main.cpp)
-# ADD_DEPENDENCIES(roscuda_vectoradd TestLib)
-# TARGET_LINK_LIBRARIES(roscuda_vectoradd
-#    ${catkin_LIBRARIES}
-#    ${PCL_LIBRARIES}
-#    TestLib
+
+set(CUDA_SOURCES
+  src/GoalObstacleHeuristic_circForce.cu
+)
+
+cuda_add_library(cuda_lib ${CUDA_SOURCES})
+
+
+# add_executable(panda_bimanual_control_node
+#   src/main.cpp
+#   src/obstacle.cpp
+#   src/panda_bimanual_control.cpp
+#   src/cf_agent.cpp
+#   src/cf_manager.cpp
+#   src/helper_functions.cpp
+#   src/dual_panda_interface.cpp
+#   src/parameter_manager.cpp
+#   # ${CUDA_SOURCES}
 # )
 
-add_executable(panda_bimanual_control_node
+cuda_add_executable(panda_bimanual_control_node
+  ${CUDA_SOURCES}
   src/main.cpp
   src/obstacle.cpp
   src/panda_bimanual_control.cpp
@@ -171,6 +187,7 @@ add_executable(panda_bimanual_control_node
   src/dual_panda_interface.cpp
   src/parameter_manager.cpp
 )
+
 add_dependencies(panda_bimanual_control_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
@@ -181,9 +198,11 @@ target_include_directories(panda_bimanual_control_node SYSTEM PUBLIC
 )
 target_link_libraries(panda_bimanual_control_node
   ${catkin_LIBRARIES}
+  ${CUDA_LIBRARIES}
   dqrobotics
   dqrobotics-interface-vrep
   utilities
+  cuda_lib
 )
 
 add_executable(vrep_interface
@@ -249,6 +268,15 @@ target_link_libraries(vision_interface_node
   dqrobotics-interface-vrep
   utilities
 )
+
+# install(TARGETS panda_bimanual_control_node
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+# )
+
 
 install(TARGETS dual_panda_costp_controller
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
