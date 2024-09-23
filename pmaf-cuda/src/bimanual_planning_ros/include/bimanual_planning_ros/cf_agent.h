@@ -278,6 +278,7 @@ class GoalObstacleHeuristicCfAgent : public CfAgent {
                                const std::vector<Obstacle> obstacles)
       : CfAgent(id, agent_pos, goal_pos, detect_shell_rad, agent_mass, radius,
                 velocity_max, approach_dist, num_obstacles, obstacles){};
+  void circForce(const std::vector<Obstacle> &obstacles, const double k_circ);
   Eigen::Vector3d currentVector(
       const Eigen::Vector3d agent_pos, const Eigen::Vector3d agent_vel,
       const Eigen::Vector3d goal_pos, const std::vector<Obstacle> &obstacles,
