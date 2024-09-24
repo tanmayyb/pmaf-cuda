@@ -1,6 +1,6 @@
-/*
-   Class for obstacle information
-*/
+// /*
+//    Class for obstacle information
+// */
 #pragma once
 
 #include <dqrobotics/DQ.h>
@@ -25,21 +25,21 @@ namespace ghostplanner {
         double vel_x_, vel_y_, vel_z_;
 
       __host__ __device__ Obstacle(): 
-        name_{""}, pos_x_{0}, pos_y_{0}, pos_z_{0}, vel_x_{0}, vel_y_{0}, vel_z_{0}, rad_{0} {};
+        pos_{0, 0, 0}, vel_{0, 0, 0}, rad_{0}, pos_x_{0}, pos_y_{0}, pos_z_{0}, vel_x_{0}, vel_y_{0}, vel_z_{0}, name_{""} {};
 
       __host__ __device__ Obstacle( const std::string name,  const Eigen::Vector3d pos,  const Eigen::Vector3d vel,  const double rad 
-      ): name_{name}, pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, vel_x_{vel.x()}, vel_y_{vel.y()}, vel_z_{vel.z()}, rad_{rad} {};
+      ): name_{name}, pos_{pos}, vel_{vel}, rad_{rad}, pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, vel_x_{vel.x()}, vel_y_{vel.y()}, vel_z_{vel.z()} {};
 
       __host__ __device__ Obstacle(
         const Eigen::Vector3d pos, const double rad
-      ): pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, rad_{rad}, vel_x_{0}, vel_y_{0}, vel_z_{0}, name_{""} {};
+      ): pos_{pos}, vel_{0, 0, 0}, rad_{rad}, pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, vel_x_{0}, vel_y_{0}, vel_z_{0}, name_{""} {};
       
       __host__ __device__ Obstacle(
         const Eigen::Vector3d pos, const Eigen::Vector3d vel, const double rad
-      ): pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, vel_x_{vel.x()}, vel_y_{vel.y()}, vel_z_{vel.z()}, rad_{rad}, name_{""} {};
+      ): pos_{pos}, vel_{vel}, rad_{rad}, pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, vel_x_{vel.x()}, vel_y_{vel.y()}, vel_z_{vel.z()}, name_{""} {};
       
       // Vrep Interface
-      void updateVrepObstacles(DQ_VrepInterface &vi, const double delta_t);
+      __host__ void updateVrepObstacles(DQ_VrepInterface &vi, const double delta_t);
 
       // getters    
       __host__ std::string getName() const { return name_; };
