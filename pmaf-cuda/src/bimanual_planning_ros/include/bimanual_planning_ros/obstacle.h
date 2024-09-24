@@ -39,7 +39,7 @@ namespace ghostplanner {
       ): pos_x_{pos.x()}, pos_y_{pos.y()}, pos_z_{pos.z()}, vel_x_{vel.x()}, vel_y_{vel.y()}, vel_z_{vel.z()}, rad_{rad}, name_{""} {};
       
       // Vrep Interface
-      __host__   void updateVrepObstacles(DQ_VrepInterface &vi, const double delta_t);
+      void updateVrepObstacles(DQ_VrepInterface &vi, const double delta_t);
 
       // getters    
       __host__ std::string getName() const { return name_; };
