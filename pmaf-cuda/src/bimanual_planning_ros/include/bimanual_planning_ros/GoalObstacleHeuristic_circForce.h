@@ -8,14 +8,15 @@
 
 namespace cuda_kernel{
 void launch_GoalObstacleHeuristic_circForce_kernel(
-    std::vector<ghostplanner::cfplanner::Obstacle> obstacles, 
+    const std::vector<ghostplanner::cfplanner::Obstacle> &obstacles, 
     int n_obstacles,
     double k_circ, 
     double detect_shell_rad_,
     double* goalPosition,
     double* agentPosition,
     double* agentVelocity,
-    double* net_force
+    double* net_force,
+    bool debug
 );
 
 

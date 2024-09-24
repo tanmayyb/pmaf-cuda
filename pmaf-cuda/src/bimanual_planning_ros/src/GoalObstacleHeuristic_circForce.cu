@@ -337,17 +337,19 @@ __global__ void circForce_kernel(
 
 
 void launch_GoalObstacleHeuristic_circForce_kernel(
-    std::vector<ghostplanner::cfplanner::Obstacle> obstacles, 
+    const std::vector<ghostplanner::cfplanner::Obstacle> &obstacles, 
     int n_obstacles,
     double k_circ, 
     double detect_shell_rad_,
     double* goalPosition,
     double* agentPosition,
     double* agentVelocity,
-    double* net_force
+    double* net_force,
+    bool debug
 ){
+  
   auto chrono_start = std::chrono::high_resolution_clock::now();
-
+  
   // const double collision_rad_ = 0.5; 
   const double min_obs_dist_ = detect_shell_rad_;
   int *active_obstacles = new int[1];
@@ -440,11 +442,13 @@ void launch_GoalObstacleHeuristic_circForce_kernel(
   cudaFree(d_force);
 
   // prints
-  auto chrono_stop = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> duration = chrono_stop - chrono_start;
-  std::cout<<"\t"<<"[ num_obstacles: "<<n_obstacles<<",\tdetect_shell_rad_: "<<detect_shell_rad_<<",\tactive_obstacles: "<<*active_obstacles<<",\tduration (s): "<<duration.count();
-  std::cout<<",\tforce: ["<<force_vec[0]<<", "<< force_vec[1]<<", "<< force_vec[2];
-  std::cout<<" ],"<<std::endl;
+  if(debug){
+    auto chrono_stop = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = chrono_stop - chrono_start;
+    std::cout<<"\t"<<"[ num_obstacles: "<<n_obstacles<<",\tdetect_shell_rad_: "<<detect_shell_rad_<<",\tactive_obstacles: "<<*active_obstacles<<",\tduration (s): "<<duration.count();
+    std::cout<<",\tforce: ["<<force_vec[0]<<", "<< force_vec[1]<<", "<< force_vec[2];
+    std::cout<<" ],"<<std::endl;
+  }
 
   net_force[0] = force_vec[0];
   net_force[1] = force_vec[1];
