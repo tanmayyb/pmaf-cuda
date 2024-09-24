@@ -8,6 +8,18 @@ Run perf to capture traces:
 sudo perf record -a --call-graph fp -- sleep 40 && sudo chmod +r perf.data
 ```
 
+### Run PMAF-CUDA
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$COPPELIASIM_ROOT
+export QT_QPA_PLATFORM_PLUGIN_PATH=$COPPELIASIM_ROOT
+cd $COPPELIASIM_ROOT && ./coppeliaSim.sh -h $PMAF_CUDA_ROOT/pmaf-cuda/src/bimanual_planning_ros/vrep_scenes/dual_arms.ttt
+
+source /home/dev/ws_pmaf_cuda/pmaf-cuda/stubs/devel/setup.bash && source /home/dev/ws_pmaf_cuda/pmaf-cuda/pmaf-cuda/devel/setup.bash && roslaunch bimanual_planning_ros vrep_interface_dual_arms.launch task_sequence:=dual_arms_static3
+
+source /home/dev/ws_pmaf_cuda/pmaf-cuda/stubs/devel/setup.bash && source /home/dev/ws_pmaf_cuda/pmaf-cuda/pmaf-cuda/devel/setup.bash && roslaunch bimanual_planning_ros planning_moveit_dual_arms.launch
+```
+
+
 # Predictive Multi-Agent-Based Planning and Landing Controller
 Created by [Riddhiman Laha](https://sites.google.com/view/riddhimanlaha), [Marvin Becker](https://www.irt.uni-hannover.de/de/mbecker), [Jonathan Vorndamme](https://www.ce.cit.tum.de/rsi/team/vorndamme-jonathan/), [Juraj Vrabel](), [Luis F.C Figueredo](https://www.luisfigueredo.com), [Matthias A. Müller](https://www.irt.uni-hannover.de/de/institut/team/mueller), and [Sami Haddadin](https://www.professoren.tum.de/en/haddadin-sami) from the Technical University of Munich and Leibniz University Hannover.
 ![qual_ex_2_sc2](https://github.com/riddhiman13/predictive-multi-agent-framework/assets/44759480/4dde1e2f-e560-4ef0-9a44-c0091272da5c)

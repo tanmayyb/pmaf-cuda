@@ -67,48 +67,48 @@ void CfManager::init(
       RealCfAgent(0, init_pos_, goal_pos, detect_shell_rad, agent_mass, radius,
                   velocity_max, approach_dist, obstacle_size);
 
-  ee_agents_.push_back(std::make_unique<HadHeuristicCfAgent>(
-      ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad, agent_mass,
-      radius, velocity_max, approach_dist, obstacle_size, obstacles));
+  // ee_agents_.push_back(std::make_unique<HadHeuristicCfAgent>(
+  //     ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad, agent_mass,
+  //     radius, velocity_max, approach_dist, obstacle_size, obstacles));
 
-  if (k_a_ee.size() > ee_agents_.size()) {
-    ee_agents_.push_back(std::make_unique<GoalHeuristicCfAgent>(
-        ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
-        agent_mass, radius, velocity_max, approach_dist, obstacle_size,
-        obstacles));
-  }
-  if (k_a_ee.size() > ee_agents_.size()) {
-    ee_agents_.push_back(std::make_unique<ObstacleHeuristicCfAgent>(
-        ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
-        agent_mass, radius, velocity_max, approach_dist, obstacle_size,
-        obstacles));
-  }
+  // if (k_a_ee.size() > ee_agents_.size()) {
+  //   ee_agents_.push_back(std::make_unique<GoalHeuristicCfAgent>(
+  //       ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
+  //       agent_mass, radius, velocity_max, approach_dist, obstacle_size,
+  //       obstacles));
+  // }
+  // if (k_a_ee.size() > ee_agents_.size()) {
+  //   ee_agents_.push_back(std::make_unique<ObstacleHeuristicCfAgent>(
+  //       ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
+  //       agent_mass, radius, velocity_max, approach_dist, obstacle_size,
+  //       obstacles));
+  // }
   if (k_a_ee.size() > ee_agents_.size()) {
     ee_agents_.push_back(std::make_unique<GoalObstacleHeuristicCfAgent>(
         ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
         agent_mass, radius, velocity_max, approach_dist, obstacle_size,
         obstacles));
   }
-  if (k_a_ee.size() > ee_agents_.size()) {
-    ee_agents_.push_back(std::make_unique<VelHeuristicCfAgent>(
-        ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
-        agent_mass, radius, velocity_max, approach_dist, obstacle_size,
-        obstacles));
-  }
+  // if (k_a_ee.size() > ee_agents_.size()) {
+  //   ee_agents_.push_back(std::make_unique<VelHeuristicCfAgent>(
+  //       ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
+  //       agent_mass, radius, velocity_max, approach_dist, obstacle_size,
+  //       obstacles));
+  // }
 
-  for (size_t i = ee_agents_.size(); i < k_a_ee.size(); ++i) {
-    ee_agents_.push_back(std::make_unique<RandomCfAgent>(
-        ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
-        agent_mass, radius, velocity_max, approach_dist, obstacle_size,
-        obstacles));
-  }
+  // for (size_t i = ee_agents_.size(); i < k_a_ee.size(); ++i) {
+  //   ee_agents_.push_back(std::make_unique<RandomCfAgent>(
+  //       ee_agents_.size() + 1, init_pos_, goal_pos, detect_shell_rad,
+  //       agent_mass, radius, velocity_max, approach_dist, obstacle_size,
+  //       obstacles));
+  // }
   Vector3d zeros{0.0, 0.0, 0.0};
-  for (size_t i = 0; i < k_r_force.size(); ++i) {
-    force_agents_.push_back(std::make_unique<GoalHeuristicCfAgent>(
-        force_agents_.size() + ee_agents_.size() + 1, init_pos_, goal_pos,
-        detect_shell_rad, agent_mass, radius, velocity_max, approach_dist,
-        obstacle_size, obstacles));
-  }
+  // for (size_t i = 0; i < k_r_force.size(); ++i) {
+  //   force_agents_.push_back(std::make_unique<GoalHeuristicCfAgent>(
+  //       force_agents_.size() + ee_agents_.size() + 1, init_pos_, goal_pos,
+  //       detect_shell_rad, agent_mass, radius, velocity_max, approach_dist,
+  //       obstacle_size, obstacles));
+  // }
 
   int dim_size = 60;
   manip_map_ = std::vector<Vector3d>(dim_size * dim_size * dim_size);

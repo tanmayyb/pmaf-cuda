@@ -1,5 +1,5 @@
 bimanual_planning:
-    num_agents_ee: 10
+    num_agents_ee: 1
     num_agents_body: 1
     k_attr: 4.0
     k_circ: 0.015

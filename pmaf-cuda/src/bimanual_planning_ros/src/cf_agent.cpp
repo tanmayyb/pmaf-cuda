@@ -2,10 +2,12 @@
 
 #include <cassert>
 #include <random>
+#include <chrono>
 
 #include "bimanual_planning_ros/helper_functions.h"
-#include "bimanual_planning_ros/obstacle.h"
-#include <chrono>
+#include <bimanual_planning_ros/obstacle.h>
+// #include "bimanual_planning_ros/dummy.h"
+#include <bimanual_planning_ros/GoalObstacleHeuristic_circForce.h>
 
 namespace ghostplanner {
 namespace cfplanner {
@@ -73,7 +75,7 @@ void CfAgent::setObstacles(const std::vector<Obstacle> &obstacles,
 void CfAgent::circForce(const std::vector<Obstacle> &obstacles,
                         const double k_circ) {
 
-  auto start = std::chrono::high_resolution_clock::now();
+  // auto start = std::chrono::high_resolution_clock::now();
 
   Eigen::Vector3d goal_vec{g_pos_ - getLatestPosition()};
   for (int i = 0; i < obstacles.size() - 1; i++) {
@@ -109,9 +111,9 @@ void CfAgent::circForce(const std::vector<Obstacle> &obstacles,
     }
     force_ += curr_force;
   }
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> duration = end - start;
-  std::cout << "Function execution time: " << duration.count() << " seconds" << std::endl;
+  // auto end = std::chrono::high_resolution_clock::now();
+  // std::chrono::duration<double> duration = end - start;
+  // std::cout << "Function execution time: " << duration.count() << " seconds" << std::endl;
   // std::cout << duration.count() << std::endl;
 
 }
@@ -518,13 +520,53 @@ Eigen::Vector3d GoalObstacleHeuristicCfAgent::calculateRotationVector(
 
   if (current.norm() < 1e-10) {
     current << 0.0, 0.0, 1.0;
-    // current = makeRandomVector();
+    // current = makeRandomVector();    
   }
   current.normalize();
   Eigen::Vector3d rot_vec{current.cross(cfagent_to_obs)};
   rot_vec.normalize();
   return rot_vec;
 }
+
+void GoalObstacleHeuristicCfAgent::circForce(const std::vector<Obstacle> &obstacles,
+                        const double k_circ) {
+  
+  double goalPosition[3];
+  double agentPosition[3];
+  double agentVelocity[3];
+  double net_force[3];
+
+  // set kinematics vars to POD-style data struct
+  goalPosition[0] = g_pos_.x();
+  goalPosition[1] = g_pos_.y();
+  goalPosition[2] = g_pos_.z();
+
+  auto pos = getLatestPosition();
+  agentPosition[0] = pos.x();
+  agentPosition[1] = pos.y();
+  agentPosition[2] = pos.z();
+
+  agentVelocity[0] = vel_.x();
+  agentVelocity[1] = vel_.y();
+  agentVelocity[2] = vel_.z();
+
+  // launch kernel
+  cuda_kernel::launch_GoalObstacleHeuristic_circForce_kernel(
+    obstacles, 
+    obstacles.size(),
+    k_circ, 
+    detect_shell_rad_,
+    goalPosition,
+    agentPosition,
+    agentVelocity,  
+    net_force
+  );
+
+  Eigen::Vector3d curr_force{net_force[0],net_force[2],net_force[1]};
+  force_ += curr_force;
+
+}
+
 
 Eigen::Vector3d VelHeuristicCfAgent::currentVector(
     const Eigen::Vector3d agent_pos, const Eigen::Vector3d agent_vel,
