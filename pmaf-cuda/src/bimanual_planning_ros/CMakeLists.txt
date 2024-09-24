@@ -3,22 +3,17 @@ project(bimanual_planning_ros)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-
-# CUDA stuff
-set(CMAKE_C_COMPILER "/usr/lib/nvidia-cuda-toolkit/bin/gcc" CACHE PATH "" FORCE)
-set(CMAKE_CXX_COMPILER "/usr/lib/nvidia-cuda-toolkit/bin/g++" CACHE PATH "" FORCE)
-
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 # CUDA stuff
+set(CMAKE_C_COMPILER "/usr/lib/nvidia-cuda-toolkit/bin/gcc" CACHE PATH "" FORCE)
+set(CMAKE_CXX_COMPILER "/usr/lib/nvidia-cuda-toolkit/bin/g++" CACHE PATH "" FORCE)
 set(CUDA_DIR "/usr/lib/nvidia-cuda-toolkit")
 find_package(CUDA REQUIRED)
 SET(CUDA_NVCC_FLAGS "-arch=sm_75" CACHE STRING "nvcc flags" FORCE)
 SET (CUDA_VERBOSE_BUILD ON CACHE BOOL "nvcc verbose" FORCE)
-# SET(LIB_TYPE STATIC) 
 enable_language(CUDA)
-# to supress warnings
 add_definitions(-w -DUSE_CUDA)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -120,12 +115,24 @@ target_link_libraries(utilities
 )
 
 
-add_library(dummy_lib
-  src/dummy.cpp
+set(CUDA_SOURCES
+  src/GoalObstacleHeuristic_circForce.cu
 )
-target_link_libraries(dummy_lib
+
+cuda_add_library(cuda_libs
+  ${CUDA_SOURCES}
+)
+
+target_link_libraries(cuda_libs
   ${catkin_LIBRARIES}
 )
+
+# add_library(dummy_lib
+#   src/dummy.cpp
+# )
+# target_link_libraries(dummy_lib
+#   ${catkin_LIBRARIES}
+# )
 
 add_library(dual_panda_costp_controller
   src/dual_panda_costp_controller.cpp
@@ -145,7 +152,8 @@ add_dependencies(dual_panda_costp_controller
   ${PROJECT_NAME}_generate_messages_cpp
   ${PROJECT_NAME}_gencpp
   utilities
-  dummy_lib
+  cuda_libs
+  # dummy_lib
 )
 target_link_libraries(dual_panda_costp_controller PUBLIC
   ${Franka_LIBRARIES}
@@ -153,7 +161,8 @@ target_link_libraries(dual_panda_costp_controller PUBLIC
   dqrobotics
   dqrobotics-interface-vrep
   utilities
-  dummy_lib
+  cuda_libs
+  # dummy_lib
 )
 target_include_directories(dual_panda_costp_controller SYSTEM PUBLIC
   ${Franka_INCLUDE_DIRS}
@@ -162,11 +171,7 @@ target_include_directories(dual_panda_costp_controller SYSTEM PUBLIC
 )
 target_include_directories(dual_panda_costp_controller PUBLIC
   include
-  ${catkin_INCLUDE_DIRS}
 )
-
-
-
 
 add_executable(panda_bimanual_control_node
   src/main.cpp
@@ -182,7 +187,8 @@ add_dependencies(panda_bimanual_control_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   utilities
-  dummy_lib
+  cuda_libs
+  # dummy_lib
 )
 target_include_directories(panda_bimanual_control_node SYSTEM PUBLIC
   ${catkin_INCLUDE_DIRS}
@@ -192,7 +198,8 @@ target_link_libraries(panda_bimanual_control_node
   dqrobotics
   dqrobotics-interface-vrep
   utilities
-  dummy_lib
+  cuda_libs
+  # dummy_lib
 )
 
 add_executable(vrep_interface
@@ -210,7 +217,8 @@ add_dependencies(vrep_interface
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   utilities
-  dummy_lib
+  cuda_libs
+  # dummy_lib
 )
 target_include_directories(vrep_interface SYSTEM PUBLIC
   ${catkin_INCLUDE_DIRS}
@@ -220,7 +228,8 @@ target_link_libraries(vrep_interface
   dqrobotics
   dqrobotics-interface-vrep
   utilities
-  dummy_lib
+  cuda_libs
+  # dummy_lib
 )
 
 add_executable(dynamic_obstacle_node
@@ -261,22 +270,9 @@ target_link_libraries(vision_interface_node
   utilities
 )
 
-# install(TARGETS panda_bimanual_control_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-# )
-
-
 install(TARGETS dual_panda_costp_controller
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(
-  DIRECTORY include/dummy_lib/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
