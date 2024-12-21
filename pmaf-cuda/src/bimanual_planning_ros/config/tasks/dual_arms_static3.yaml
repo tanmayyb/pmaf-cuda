@@ -1,5 +1,5 @@
 bimanual_planning:
-    num_agents_ee: 4
+    num_agents_ee: 1
     num_agents_body: 1
     k_attr: 4.0
     k_circ: 0.025
@@ -14,10 +14,10 @@ bimanual_planning:
     desired_ws_limits: [1.0, -1.0, 0.3, -0.3, 1.1, 0.2]
     max_prediction_steps: 1500
     approach_dist: 0.25
-    detect_shell_rad: 0.50
+    detect_shell_rad: 1.50
     prediction_freq_multiple: 1
     frequency_ros: 100
-    velocity: 0.2
+    velocity: 0.3
     reflex_tau_max: [100, 100, 100, 80, 80, 40, 40]
     reflex_F_max: [100, 100, 100, 30, 30, 30]
     detect_F_min: [-10, -10, -10, -3, -3, -3]

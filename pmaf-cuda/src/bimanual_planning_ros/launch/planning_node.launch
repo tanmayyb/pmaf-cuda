@@ -3,6 +3,7 @@
   <arg name="robot_id"       default="panda_dual" />
   <arg name="robot_left_id"  default="panda_left" />
   <arg name="robot_right_id" default="panda_right" />
+  <arg name="time_now" default="$(eval eval ('_' + '_import_' + '_(\'datetime\')').datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))"/>
 
   <group ns="$(arg robot_id)/dual_panda_costp_controller">
     <remap from="error_recovery" to="/panda_dual/error_recovery/goal"/>
