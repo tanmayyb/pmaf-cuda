@@ -3,6 +3,7 @@
 #include <cassert>
 #include <random>
 #include <chrono>
+#include <ctime>
 
 #include "bimanual_planning_ros/helper_functions.h"
 #include <bimanual_planning_ros/obstacle.h>
@@ -310,6 +311,19 @@ void CfAgent::cfPlanner(const std::vector<Eigen::Vector3d> &manip_map,
   }
 }
 
+
+void CfAgent::stamp_timestamp(std::chrono::time_point<std::chrono::high_resolution_clock> t_start, std::string funcname){
+  auto t_stop = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> duration = t_stop - t_start;
+  
+  if (duration.count()>0.0001){
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string s(30, '\0');
+    std::strftime(&s[0], s.size(), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+    std::cout<<s<<","<<funcname<<","<<duration.count()<<std::endl;
+  }
+}
+
 void CfAgent::cfPrediction(const std::vector<Eigen::Vector3d> &manip_map,
                            const double k_attr, const double k_circ,
                            const double k_repel, const double k_damp,
@@ -318,6 +332,11 @@ void CfAgent::cfPrediction(const std::vector<Eigen::Vector3d> &manip_map,
   while (!finished_) {
     std::chrono::steady_clock::time_point begin_prediction =
         std::chrono::steady_clock::now();
+    
+    std::string s;
+    auto t_start = std::chrono::high_resolution_clock::now();
+    auto t_start0 = t_start;
+    
     while (run_prediction_ && getDistFromGoal() > 0.1 &&
            pos_.size() < max_prediction_steps) {
       running_ = true;
@@ -326,17 +345,35 @@ void CfAgent::cfPrediction(const std::vector<Eigen::Vector3d> &manip_map,
       if (!(getDistFromGoal() < approach_dist_ ||
             (vel_.norm() < 0.5 * vel_max_ &&
              (getLatestPosition() - init_pos_).norm() < 0.2))) {
-        circForce(obstacles_, k_circ);
+
+        t_start = std::chrono::high_resolution_clock::now(); s = "circForce";
+        circForce(obstacles_, k_circ); // timed
+        stamp_timestamp(t_start, s);
+
         if (force_.norm() > 1e-5) {
-          k_goal_scale = attractorForceScaling(obstacles_);
+          t_start = std::chrono::high_resolution_clock::now(); s = "attractorForceScaling";
+          k_goal_scale = attractorForceScaling(obstacles_); //timed
+          stamp_timestamp(t_start, s);
         }
       }
-      repelForce(obstacles_, k_repel);
+
+      t_start = std::chrono::high_resolution_clock::now(); s = "repelForce";
+      repelForce(obstacles_, k_repel); // timed
+      stamp_timestamp(t_start, s);
+
+
       attractorForce(k_attr, k_damp, k_goal_scale);
       // manipulabilityForce(manip_map, k_manip, 150.0, 5.0);
       updatePositionAndVelocity(delta_t);
-      predictObstacles(delta_t);
+
+      t_start = std::chrono::high_resolution_clock::now(); s = "predictObstacles";
+      predictObstacles(delta_t); // timed
+      stamp_timestamp(t_start, s);
+
     }
+
+    s = "cfPrediction"; stamp_timestamp(t_start0, s);  
+
     auto end_prediction = std::chrono::steady_clock::now();
     if (running_) {
       prediction_time_ = (end_prediction - begin_prediction).count();
@@ -530,7 +567,6 @@ Eigen::Vector3d GoalObstacleHeuristicCfAgent::calculateRotationVector(
 
 void GoalObstacleHeuristicCfAgent::circForce(const std::vector<Obstacle> &obstacles,
                         const double k_circ) {
-  
   double goalPosition[3];
   double agentPosition[3];
   double agentVelocity[3];
@@ -559,7 +595,8 @@ void GoalObstacleHeuristicCfAgent::circForce(const std::vector<Obstacle> &obstac
     goalPosition,
     agentPosition,
     agentVelocity,  
-    net_force
+    net_force,
+    false
   );
 
   Eigen::Vector3d curr_force{net_force[0],net_force[2],net_force[1]};

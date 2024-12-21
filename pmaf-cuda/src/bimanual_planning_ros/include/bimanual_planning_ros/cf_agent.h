@@ -111,6 +111,7 @@ class CfAgent {
   virtual void setPosition(Eigen::Vector3d position);
   void setInitalPosition(Eigen::Vector3d position);
   void resetForce() { force_ << 0.0, 0.0, 0.0; };
+  void stamp_timestamp(std::chrono::time_point<std::chrono::high_resolution_clock> t_start, std::string funcname);
   Eigen::Vector3d getForce() { return force_; };
   Eigen::Vector3d getVelocity() { return vel_; };
   double getDistFromGoal() const {
